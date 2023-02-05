@@ -9,7 +9,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 
 @XmlRootElement(name = "dbs")
@@ -47,7 +46,7 @@ public class PerformanceResponse {
 		private String prfpdto; // 공연종료일
 
 		@XmlElement(name = "fcltynm")
-		private String fcltynm; // 공연시설명
+		private String fcltynm; // 공연시설명(공연장명)
 
 		@XmlElement(name = "poster")
 		private String poster; // 포스터이미지경로

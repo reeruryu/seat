@@ -15,12 +15,12 @@ class KopisServiceTest {
 	@Autowired
 	private KopisService kopisService;
 	@Test
-	void tmp() {
+	void apiTest_getPerformanceList() {
 
 		// stDate, String edDate, Integer cpage, Integer row
-		List<PerformanceResponse.Performance> list =
+		/*List<PerformanceResponse.Performance> list =
 			kopisService.getPerformanceList( // 01 공연 예정, 02 공연 중, 03 공연 완료
-				1, 5, "02").getPerformanceList();
+				100, "02").getPerformanceList();
 
 		for (int i = 0; i < list.size(); i++) {
 			PerformanceResponse.Performance p = list.get(i);
@@ -31,16 +31,16 @@ class KopisServiceTest {
 			System.out.println("공연시설명(공연장명):" + p.getFcltynm());
 //			System.out.println("포스터이미지경로:" + p.getPoster());
 //			System.out.println("공연장르명:" + p.getGenrenm());
-//			System.out.println("공연상태:" + p.getPrfstate());
+			System.out.println("공연상태:" + p.getPrfstate());
 			System.out.println("오픈런:" + p.getOpenrun());
 			System.out.println();
 		}
-		System.out.println(list.size());
-
-//		FeignException
-
-		assertEquals(1, 1);
+		System.out.println(list.size());*/
 
 	}
 
+	@Test
+	void updateTest() {
+		System.out.println(kopisService.updatePerformance());
+	}
 }

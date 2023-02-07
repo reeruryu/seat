@@ -1,5 +1,6 @@
 package com.zeropepsi.seat.client.kopis;
 
+import java.time.LocalDate;
 import java.util.List;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -59,6 +60,20 @@ public class PerformanceResponse {
 
 		@XmlElement(name = "openrun")
 		private String openrun; // 오픈런
+
+		public LocalDate getPrfpdfromDate() {
+			return LocalDate.of(Integer.parseInt(this.prfpdfrom.substring(0, 4)),
+				Integer.parseInt(this.prfpdfrom.substring(5, 7)),
+				Integer.parseInt(this.prfpdfrom.substring(8))
+			);
+		}
+
+		public LocalDate getPrfpdtoDate() {
+			return LocalDate.of(Integer.parseInt(this.prfpdto.substring(0, 4)),
+				Integer.parseInt(this.prfpdto.substring(5, 7)),
+				Integer.parseInt(this.prfpdto.substring(8))
+			);
+		}
 
 	}
 

@@ -14,8 +14,8 @@ public interface KopisClient {
 	@GetMapping("/pblprfr")
 	PerformanceResponse getPrfList(
 		@RequestParam("service") String service,
-		@RequestParam("stDate")  String stDate,
-		@RequestParam("edDate") String edDate,
+		@RequestParam("stdate")  String stdate,
+		@RequestParam("eddate") String eddate,
 		@RequestParam("cpage") Integer cpage,
 		@RequestParam("rows") Integer rows,
 		@RequestParam("prfstate") String prfstate);

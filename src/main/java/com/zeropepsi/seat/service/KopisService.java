@@ -14,7 +14,9 @@ import java.util.List;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -27,18 +29,30 @@ public class KopisService {
 	private final TheaterRepository theaterRepository;
 	private final PerformanceRepository performanceRepository;
 
+	/**
+	 * // update, delete 로직 배치로 구현 예정
+	 * 매달 1일 새벽 2시 마다 api 가져오기
+	 * 	(이미 6개월 치 데이터 저장 중 상태)
+	 */
+	@Transactional
+	@Scheduled(cron = "0 0 2 1 * *")
 	public Integer updatePerformance() {
-		List<Prf> prfList = getPrfList(100, "02");
+		List<Prf> prfList = getPrfList();
 
 		int cnt = 0;
 		List<Performance> performanceList = new ArrayList<>();
 		for (Prf prf: prfList) {
 
+			boolean isExistMt20id = performanceRepository.existsByMt20id(prf.getMt20id());
+			if (isExistMt20id) {
+				continue;
+			}
+
 			String theaterName = "";
 			try {
 				theaterName = getTheaterName(prf.getMt20id());
 			} catch (Exception e) {
-				throw new RuntimeException(e);
+				continue;
 			}
 
 			if (theaterName == "") {
@@ -54,10 +68,8 @@ public class KopisService {
 				continue;
 			}
 
-			LocalDate from = getLocalDate(prf.getPrfpdfrom());
-			LocalDate to = getLocalDate(prf.getPrfpdto());
-
-			performanceList.add(Performance.of(prf, theater, from, to));
+			performanceList.add(Performance.of(
+				prf, theater, prf.getPrfpdfromDate(), prf.getPrfpdtoDate()));
 		}
 
 		performanceRepository.saveAll(performanceList);
@@ -68,21 +80,23 @@ public class KopisService {
 
 	// scheduler : 1일 or 1달 마다 불러오기
 	// prfstate : 01 공연 예정, 02 공연 중, 03 공연 완료
-	public List<Prf> getPrfList(Integer rows, String prfstate) {
-		LocalDate nowDt = LocalDate.now();
-		String nowDtStr = nowDt.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
-		String futureDtStr = nowDt.plusMonths(4).minusDays(1)
+	public List<Prf> getPrfList() {
+		LocalDate startDt = LocalDate.now().plusMonths(5);
+		String startDtStr = startDt.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+		String edDtStr = startDt.plusMonths(1).minusDays(1)
 			.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
 
 		return kopisClient.getPrfList(kopisKey,
-			nowDtStr, futureDtStr, 1, rows, prfstate).getPrfList();
+			startDtStr, edDtStr, 1, 500, "01").getPrfList();
 	}
 
-	private static LocalDate getLocalDate(String dateStr) {
-		return LocalDate.of(Integer.parseInt(dateStr.substring(0, 4)),
-			Integer.parseInt(dateStr.substring(5, 7)),
-			Integer.parseInt(dateStr.substring(8))
-		);
+	/**
+	 * 매일 새벽 1시 마다 기간 지난 거 체크 후 삭제
+	 */
+	@Transactional
+	@Scheduled(cron = "0 0 1 * * *")
+	public void deletePerformanceComplete() {
+		performanceRepository.deleteOutsidePeriod(LocalDate.now());
 	}
 
 	public String getTheaterName(String mt20id) throws Exception {

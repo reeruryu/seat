@@ -1,3 +1,5 @@
-### performance test
-GET http://localhost:8080/pTest?stDate=20230201&edDate=20230301&cpage=1&rows=300
-Content-Type: application/json
+### facility document save
+POST http://localhost:8080/api/save/facility
+
+### performance document save
+POST http://localhost:8080/api/save/performance

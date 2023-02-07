@@ -1,5 +1,7 @@
 package com.zeropepsi.seat.service;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import com.zeropepsi.seat.domain.document.FacilityDoc;
 import java.util.List;
 import org.junit.jupiter.api.Test;

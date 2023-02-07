@@ -1,6 +1,5 @@
 package com.zeropepsi.seat.client.kopis;
 
-import java.util.List;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
@@ -13,15 +12,15 @@ import lombok.NoArgsConstructor;
 @XmlRootElement(name = "dbs")
 public class PerformanceDetailResponse {
 
-	private PerformanceDetail performanceDetail;
+	private PrfDetail prfDetail;
 
 	@XmlElement(name="db")
-	public PerformanceDetail getPerformanceDetail() {
-		return performanceDetail;
+	public PrfDetail getPrfDetail() {
+		return prfDetail;
 	}
 
-	public void setPerformanceDetail(PerformanceDetail performanceDetail) {
-		this.performanceDetail = performanceDetail;
+	public void setPrfDetail(PrfDetail prfDetail) {
+		this.prfDetail = prfDetail;
 	}
 
 	@Getter
@@ -30,7 +29,7 @@ public class PerformanceDetailResponse {
 	@AllArgsConstructor
 	@XmlRootElement(name = "db")
 	@XmlAccessorType(XmlAccessType.FIELD)
-	public static class PerformanceDetail {
+	public static class PrfDetail {
 
 		@XmlElement(name = "mt20id")
 		private String mt20id; // 공연ID

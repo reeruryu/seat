@@ -5,8 +5,10 @@ import com.zeropepsi.seat.client.kopis.PerformanceDetailResponse;
 import com.zeropepsi.seat.client.kopis.PerformanceResponse.Prf;
 import com.zeropepsi.seat.domain.Performance;
 import com.zeropepsi.seat.domain.Theater;
+import com.zeropepsi.seat.domain.document.PerformanceDoc;
 import com.zeropepsi.seat.repository.PerformanceRepository;
 import com.zeropepsi.seat.repository.TheaterRepository;
+import com.zeropepsi.seat.repository.es.PerformanceEsRepository;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -28,9 +30,9 @@ public class KopisService {
 
 	private final TheaterRepository theaterRepository;
 	private final PerformanceRepository performanceRepository;
+	private final PerformanceEsRepository performanceEsRepository;
 
 	/**
-	 * // update, delete 로직 배치로 구현 예정
 	 * 매달 1일 새벽 2시 마다 api 가져오기
 	 * 	(이미 6개월 치 데이터 저장 중 상태)
 	 */
@@ -39,8 +41,9 @@ public class KopisService {
 	public Integer updatePerformance() {
 		List<Prf> prfList = getPrfList();
 
-		int cnt = 0;
-		List<Performance> performanceList = new ArrayList<>();
+		int cnt = 0; // for 로그
+		List<Performance> performanceList = new ArrayList<>(); // mysql 저장용
+		List<PerformanceDoc> performanceDocList = new ArrayList<>(); // es 저장용
 		for (Prf prf: prfList) {
 
 			boolean isExistMt20id = performanceRepository.existsByMt20id(prf.getMt20id());
@@ -55,7 +58,7 @@ public class KopisService {
 				continue;
 			}
 
-			if (theaterName == "") {
+			if (Objects.equals(theaterName, "")) {
 				cnt++;
 				continue;
 			}
@@ -68,11 +71,15 @@ public class KopisService {
 				continue;
 			}
 
-			performanceList.add(Performance.of(
-				prf, theater, prf.getPrfpdfromDate(), prf.getPrfpdtoDate()));
+			Performance performance = Performance.of(
+				prf, theater, prf.getPrfpdfromDate(), prf.getPrfpdtoDate());
+
+			performanceList.add(performance);
+			performanceDocList.add(PerformanceDoc.from(performance));
 		}
 
 		performanceRepository.saveAll(performanceList);
+		performanceEsRepository.saveAll(performanceDocList);
 		System.out.println(cnt + "개의 db가 없습니다.");
 
 		return performanceList.size();
@@ -91,12 +98,11 @@ public class KopisService {
 	}
 
 	/**
-	 * 매일 새벽 1시 마다 기간 지난 거 체크 후 삭제
+	 * 기간 지난 데이터 체크 후 삭제 - 스케줄러
 	 */
 	@Transactional
-	@Scheduled(cron = "0 0 1 * * *")
 	public void deletePerformanceComplete() {
-		performanceRepository.deleteOutsidePeriod(LocalDate.now());
+		performanceRepository.deleteByEndDate(LocalDate.now());
 	}
 
 	public String getTheaterName(String mt20id) throws Exception {

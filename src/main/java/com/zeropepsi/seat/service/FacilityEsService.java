@@ -52,7 +52,7 @@ public class FacilityEsService {
 	}
 
 	/**
-	 * mysql에 저장된 facility es에 저장
+	 * mysql에 저장된 facility es에 저장 (초기세팅)
 	 */
 	public void saveFacilities() {
 		List<Facility> facilityList = facilityRepository.findAll();

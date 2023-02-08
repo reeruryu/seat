@@ -14,6 +14,7 @@ public interface PerformanceRepository extends JpaRepository<Performance, Long> 
 	boolean existsByMt20id(String mt20id);
 
 	@Modifying
-	@Query("DELETE FROM Performance p WHERE :nowDate NOT BETWEEN p.prfpdfrom AND p.prfpdto")
-	void deleteOutsidePeriod(@Param("nowDate") LocalDate nowDate);
+	@Query("DELETE FROM Performance p WHERE p.prfpdto > :nowDate")
+	void deleteByEndDate(@Param("nowDate") LocalDate nowDate);
+
 }

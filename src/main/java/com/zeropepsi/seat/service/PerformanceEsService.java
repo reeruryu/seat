@@ -5,6 +5,7 @@ import com.zeropepsi.seat.domain.document.PerformanceDoc;
 import com.zeropepsi.seat.repository.PerformanceRepository;
 import com.zeropepsi.seat.repository.es.PerformanceEsRepository;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +18,9 @@ import org.springframework.data.elasticsearch.core.SearchHit;
 import org.springframework.data.elasticsearch.core.SearchHits;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQuery;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -52,7 +55,20 @@ public class PerformanceEsService {
 	}
 
 	/**
-	 * mysql에 저장된 performance es에 저장
+	 * 기간 지난 데이터 체크 후 삭제 - 스케줄러
+	 */
+	@Transactional
+	public void deletePerformanceComplete() {
+		NativeSearchQuery query = new NativeSearchQueryBuilder()
+			.withQuery(QueryBuilders.boolQuery()
+				.must(QueryBuilders.rangeQuery("endDate").lt(new Date())))
+			.build();
+
+		elasticsearchOperations.delete(query, PerformanceDoc.class);
+	}
+
+	/**
+	 * mysql에 저장된 performance es에 저장 (초기 세팅)
 	 */
 	public void savePerformances() {
 		List<Performance> performanceList = performanceRepository.findAll();
